@@ -1,42 +1,54 @@
-const { ActionRowBuilder, ButtonBuilder, EmbedBuilder, Events, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonStyle } = require('discord.js')
-const axios = require('axios')
+const { EmbedBuilder } = require('discord.js');
+const axios = require('axios');
 
 module.exports = {
     name: "moedas",
-    description: "Quanto ta o dolar hoje?",
+    description: "Verificar valores das moedas",
     type: 1,
 
     run: async (client, interaction, args) => {
-        axios.get(`https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL`)
-            .then(async response => {
+        try {
+            const response = await axios.get(`https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL,ARS-BRL,GBP-BRL,ETH-BRL,CNY-BRL,RUB-BRL`);
+            const data = response.data;
 
-                //Atribuição do valor das moedas.
-                let valor_dolar = Number(response.data.USDBRL.ask)
-                    .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            const dolar = formatCurrency(data.USDBRL.ask);
+            const euro = formatCurrency(data.EURBRL.ask);
+            const pesoArgentino = `R$ ${formatNumber(data.ARSBRL.ask)}`;
+            const libras = formatCurrency(data.GBPBRL.ask);
+            const btc = formatCurrency(data.BTCBRL.ask);
+            const eth = formatCurrency(data.ETHBRL.ask);
+            const yuan = formatCurrency(data.CNYBRL.ask);
+            const rublo = formatCurrency(data.RUBBRL.ask);
 
-                let valor_euro = Number(response.data.EURBRL.ask)
-                    .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            const embed = new EmbedBuilder()
+                .setTitle('Moedas')
+                .setDescription('Aqui você pode ver algumas moedas e o valor das mesmas. Esse comando é apenas para se informar.')
+                .addFields(
+                    { name: '$ Dolar:', value: `\`\`\`${dolar}\`\`\``, inline: true },
+                    { name: '€ Euro:', value: `\`\`\`${euro}\`\`\``, inline: true },
+                    { name: '🇦🇷 Peso Argentino:', value: `\`\`\`${pesoArgentino}\`\`\``, inline: true },
+                    { name: '£ Libra esterlina:', value: `\`\`\`${libras}\`\`\``, inline: true },
+                    { name: '¥ Yuan Chinês:', value: `\`\`\`${yuan}\`\`\``, inline: true },
+                    { name: '₽ Rublo Russo:', value: `\`\`\`${rublo}\`\`\``, inline: true },
+                    { name: '🪙 BitCoin:', value: `\`\`\`${btc}\`\`\``, inline: false },
+                    { name: 'ETH:', value: `\`\`\`${eth}\`\`\``, inline: false },
+                )
+                .setColor("#2F3136");
 
-                let valor_btc = Number(response.data.BTCBRL.ask)
-                    .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-
-
-                let embed = new EmbedBuilder()
-                    .setTitle('Moedas')
-                    .setDescription('Aqui você pode ver algumas moedas e o valor das mesmas. Esse comando é apenas para se informar.')
-                    .addFields(
-                        { name: '🇺🇲 Dolar:', value: `${valor_dolar}`, inline: true },
-                        { name: '🇪🇺 Euro:', value: `${valor_euro}`, inline: true },
-                        { name: '🪙 BitCoin:', value: `${valor_btc}`, inline: true },
-                    )
-                    .setColor("#2F3136")
-                interaction.reply({ embeds: [embed] })
-
-            }).catch(error => {
-                interaction.reply({
-                    content: `***${interaction.user.username},** ocorreu algum erro, sinto muito.*`,
-                    ephemeral: true
-                })
-            })
+            interaction.reply({ embeds: [embed] });
+        } catch (error) {
+            interaction.reply({
+                content: `Ocorreu um erro ao processar o comando. Por favor, tente novamente mais tarde.`,
+                ephemeral: true
+            });
+        }
     }
+};
+
+function formatCurrency(value) {
+    return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function formatNumber(value) {
+    return Number(value).toLocaleString('pt-BR');
 }
