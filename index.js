@@ -12,9 +12,7 @@ const client = new Client({
     ],
 })
 
-require('dotenv').config();
-
-const botToken = process.env.BOT_TOKEN;
+const config = require("./config.json");
 
 client.commands = new Discord.Collection();
 client.slashCommands = new Discord.Collection();
@@ -75,4 +73,4 @@ client.on('messageCreate', msg => {
     }
 })
 
-client.login(botToken);
+client.login(config.TOKEN);
