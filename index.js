@@ -75,15 +75,19 @@ client.on('messageCreate', msg => {
 
 client.on('interactionCreate', interaction => {
     if (interaction.customId === 'calculator') {
-        const response_1 = Number(interaction.fields.getTextInputValue('calculator#1'))
-        const response_2 = Number(interaction.fields.getTextInputValue('calculator#2'))
-        const response_3 = Number(interaction.fields.getTextInputValue('calculator#3'))
-        const response_4 = Number(interaction.fields.getTextInputValue('calculator#4')) / 100
+        const response_1 = Number(interaction.fields.getTextInputValue('calculator#1'));
+        const response_2 = Number(interaction.fields.getTextInputValue('calculator#2'));
+        const response_3 = Number(interaction.fields.getTextInputValue('calculator#3'));
+        const response_4 = Number(interaction.fields.getTextInputValue('calculator#4')) / 100;
 
-        var etapa_1 = (1 + response_4) ** response_3;
-        let resultado = response_1 + response_2 * ((etapa_1 - 1) / response_4 * (1 + response_4));
-        let investido = response_1 + (response_2 * response_3);
-        let totalinvestido = resultado - investido;
+        if (isNaN(response_1) || isNaN(response_2) || isNaN(response_3) || isNaN(response_4)) {
+            interaction.reply('Por favor, forneça valores numéricos válidos.');
+            return;
+        }
+
+        const resultado = response_1 * Math.pow(1 + response_4, response_3) + response_2 * ((Math.pow(1 + response_4, response_3) - 1) / response_4);
+        const investido = response_1 + response_2 * response_3;
+        const totalinvestido = resultado - investido;
 
         const embed = new EmbedBuilder()
             .setTitle('Calculadora de juros compostos')
@@ -91,12 +95,13 @@ client.on('interactionCreate', interaction => {
                 { name: 'Investimento inicial:', value: `\`\`\`${response_1.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\`\`\``, inline: false },
                 { name: 'Investimento mensal:', value: `\`\`\`${response_2.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\`\`\``, inline: false },
                 { name: 'Tempo do investimento:', value: `\`\`\`${response_3} meses\`\`\``, inline: false },
-                { name: 'Juros:', value: `\`\`\`${response_4 * 100}% ao mês\`\`\``, inline: false },
+                { name: 'Juros:', value: `\`\`\`${(response_4 * 100).toFixed(2)}% ao mês\`\`\``, inline: false },
                 { name: 'Valor Total Final:', value: `\`\`\`${resultado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\`\`\``, inline: true },
                 { name: 'Valor Total Investido:', value: `\`\`\`${investido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\`\`\``, inline: true },
                 { name: 'Valor Total em Juros:', value: `\`\`\`${totalinvestido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\`\`\``, inline: true },
-            )
-        interaction.reply({ embeds: [embed], ephemeral: true })
+            );
+
+        interaction.reply({ embeds: [embed], ephemeral: true });
     }
 })
 
