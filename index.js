@@ -81,7 +81,7 @@ client.on('interactionCreate', interaction => {
         const response_4 = Number(interaction.fields.getTextInputValue('calculator#4')) / 100;
 
         if (isNaN(response_1) || isNaN(response_2) || isNaN(response_3) || isNaN(response_4)) {
-            interaction.reply('Por favor, forneça valores numéricos válidos.');
+            interaction.reply({ content: 'Por favor, forneça valores numéricos válidos.', ephemeral: true });
             return;
         }
 
