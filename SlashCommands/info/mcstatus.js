@@ -26,7 +26,7 @@ module.exports = {
             interaction.reply({ embeds: [embed] })
         }).catch((error) => {
             interaction.reply({
-                content: `***${interaction.user.username},** servidor não encontrado.*`,
+                content: `:x: Servidor não encontrado.`,
                 ephemeral: true
             })
         })
